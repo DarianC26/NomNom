@@ -10,6 +10,13 @@ export default function RootLayout() {
       gestureEnabled: false
     }}
     />
+    <Stack.Screen
+      name="(Auth)"
+      options={{
+      headerShown: false,
+      gestureEnabled: true
+    }}
+    />
     </Stack>
     )
 }
