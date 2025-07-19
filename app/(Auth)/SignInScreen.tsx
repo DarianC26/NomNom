@@ -1,4 +1,4 @@
-// Auth/signinscreen.tsx
+// Auth/SignInScreen.tsx
 import React, { useState } from 'react';
 import { 
   View, 
@@ -7,16 +7,15 @@ import {
   TouchableOpacity, 
   StyleSheet, 
   ScrollView,
-  Alert 
+  Alert,
+  ActivityIndicator
 } from 'react-native';
+import { supabase } from '../../lib/supabase';
+import { router } from 'expo-router';
 
-interface SignInScreenProps {
-  onSignUp: () => void;
-  onBack?: () => void;
-}
-
-const SignInScreen: React.FC<SignInScreenProps> = ({ onSignUp, onBack }) => {
+const SignInScreen: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -27,17 +26,102 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignUp, onBack }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     if (!formData.email || !formData.password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
-    // Handle sign in logic here
-    console.log('Sign in with:', formData);
+
+    setLoading(true);
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+      });
+
+      if (error) {
+        Alert.alert('Sign In Failed', error.message);
+        return;
+      }
+
+      if (data.user) {
+        console.log('Sign in successful:', data.user);
+        router.push('/(Profile)/Profile')
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An unexpected error occurred');
+      console.error('Sign in error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleForgotPassword = () => {
-    Alert.alert('Forgot Password', 'Password reset functionality would go here');
+  const handleForgotPassword = async () => {
+    if (!formData.email) {
+      Alert.alert(
+        'Email Required', 
+        'Please enter your email address first, then try forgot password again.'
+      );
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(
+        formData.email.trim().toLowerCase(),
+        {
+          redirectTo: 'your-app://reset-password', // Update with your app's deep link
+        }
+      );
+
+      if (error) {
+        Alert.alert('Error', error.message);
+      } else {
+        Alert.alert(
+          'Check Your Email',
+          'We sent you a password reset link. Please check your email and follow the instructions.'
+        );
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to send reset email');
+      console.error('Password reset error:', error);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: 'your-app://auth/callback', // Update with your app's deep link
+        },
+      });
+
+      if (error) {
+        Alert.alert('Error', error.message);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to sign in with Google');
+      console.error('Google sign in error:', error);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: 'your-app://auth/callback', // Update with your app's deep link
+        },
+      });
+
+      if (error) {
+        Alert.alert('Error', error.message);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to sign in with Apple');
+      console.error('Apple sign in error:', error);
+    }
   };
 
   return (
@@ -52,11 +136,19 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignUp, onBack }) => {
         </View>
 
         <View style={styles.socialButtons}>
-          <TouchableOpacity style={styles.googleButton}>
+          <TouchableOpacity 
+            style={styles.googleButton}
+            onPress={handleGoogleSignIn}
+            disabled={loading}
+          >
             <Text style={styles.googleButtonText}>🔍 Continue with Google</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.appleButton}>
+          <TouchableOpacity 
+            style={styles.appleButton}
+            onPress={handleAppleSignIn}
+            disabled={loading}
+          >
             <Text style={styles.appleButtonText}>🍎 Continue with Apple</Text>
           </TouchableOpacity>
         </View>
@@ -78,6 +170,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignUp, onBack }) => {
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
+              editable={!loading}
             />
           </View>
 
@@ -92,10 +185,12 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignUp, onBack }) => {
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 autoCorrect={false}
+                editable={!loading}
               />
               <TouchableOpacity
                 style={styles.eyeButton}
                 onPress={() => setShowPassword(!showPassword)}
+                disabled={loading}
               >
                 <Text style={styles.eyeIcon}>
                   {showPassword ? '🙈' : '👁️'}
@@ -108,6 +203,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignUp, onBack }) => {
             <TouchableOpacity
               style={styles.rememberMeContainer}
               onPress={() => setRememberMe(!rememberMe)}
+              disabled={loading}
             >
               <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
                 {rememberMe && <Text style={styles.checkmark}>✓</Text>}
@@ -115,20 +211,28 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignUp, onBack }) => {
               <Text style={styles.rememberMeText}>Remember me</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity onPress={handleForgotPassword}>
+            <TouchableOpacity onPress={handleForgotPassword} disabled={loading}>
               <Text style={styles.forgotPasswordText}>Forgot password?</Text>
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.signInButton} onPress={handleSignIn}>
-            <Text style={styles.signInButtonText}>Sign In</Text>
+          <TouchableOpacity 
+            style={[styles.signInButton, loading && styles.signInButtonDisabled]} 
+            onPress={handleSignIn}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.signInButtonText}>Sign In</Text>
+            )}
           </TouchableOpacity>
         </View>
 
         <View style={styles.signUpContainer}>
           <Text style={styles.signUpText}>
             Don't have an account?{' '}
-            <Text style={styles.signUpLink} onPress={onSignUp}>
+            <Text style={styles.signUpLink} onPress={loading ? undefined : ()=>{router.push('/SignUpScreen')}}>
               Sign up
             </Text>
           </Text>
@@ -309,6 +413,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 8,
+  },
+  signInButtonDisabled: {
+    backgroundColor: '#d1d5db',
   },
   signInButtonText: {
     color: 'white',

@@ -1,8 +1,19 @@
+import { useAuth } from '@/context/AuthContext';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
   
 const Index: React.FC = () => {
+  const { session, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading) {
+      if (session) {
+        router.replace('/(Profile)/Profile'); // 👈 automatically go to Profile layout
+      }
+    }
+  }, [loading, session]);
+  
   return (
     <View style={styles.container}>
       <View style={styles.content}>

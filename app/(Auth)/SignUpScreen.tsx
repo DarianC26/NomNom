@@ -14,6 +14,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
+import { router } from 'expo-router';
 
 interface SignUpScreenProps {
   onSignIn: () => void;
@@ -93,11 +94,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignIn, onSignUpSuccess }
               {
                 text: 'OK',
                 onPress: () => {
-                  if (onSignUpSuccess) {
-                    onSignUpSuccess();
-                  } else {
-                    onSignIn(); // Navigate back to sign in
-                  }
+                  router.push('/SignInScreen')
                 },
               },
             ]
