@@ -41,7 +41,7 @@ const Index: React.FC = () => {
         </View>
 
         <View style={styles.buttons}>
-          <TouchableOpacity style={styles.primaryButton}>
+          <TouchableOpacity style={styles.primaryButton} onPress={()=>{router.push("/SignUpScreen")}}>
             <Text style={styles.primaryButtonText}>Get Started Free</Text>
           </TouchableOpacity>
           

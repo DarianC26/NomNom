@@ -7,12 +7,10 @@ import {
   ScrollView,
   StyleSheet,
   SafeAreaView,
-  Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-
-const { width } = Dimensions.get('window');
+import { supabase } from '../../lib/supabase';
 
 interface SignUpScreenProps {
   onSignIn: () => void;
