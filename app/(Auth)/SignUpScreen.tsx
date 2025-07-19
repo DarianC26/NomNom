@@ -14,9 +14,13 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
-import { router } from 'expo-router';
 
-const SignUpScreen: React.FC = () => {
+interface SignUpScreenProps {
+  onSignIn: () => void;
+  onSignUpSuccess?: () => void;
+}
+
+const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignIn, onSignUpSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -89,11 +93,21 @@ const SignUpScreen: React.FC = () => {
               {
                 text: 'OK',
                 onPress: () => {
-                  router.push('../index')
+                  if (onSignUpSuccess) {
+                    onSignUpSuccess();
+                  } else {
+                    onSignIn(); // Navigate back to sign in
+                  }
                 },
               },
             ]
           );
+        } else {
+          // User is signed up and logged in
+          console.log('Sign up successful:', data.user);
+          if (onSignUpSuccess) {
+            onSignUpSuccess();
+          }
         }
       }
     } catch (error) {
