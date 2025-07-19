@@ -1,3 +1,4 @@
+// Auth/SignUpScreen.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -7,19 +8,19 @@ import {
   ScrollView,
   StyleSheet,
   SafeAreaView,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
+import { router } from 'expo-router';
 
-interface SignUpScreenProps {
-  onSignIn: () => void;
-}
-
-const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignIn }) => {
+const SignUpScreen: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -29,6 +30,114 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignIn }) => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const validateForm = (): string | null => {
+    if (!formData.name.trim()) {
+      return 'Please enter your full name';
+    }
+    if (!formData.email.trim()) {
+      return 'Please enter your email address';
+    }
+    if (!formData.password) {
+      return 'Please enter a password';
+    }
+    if (formData.password.length < 6) {
+      return 'Password must be at least 6 characters long';
+    }
+    if (formData.password !== formData.confirmPassword) {
+      return 'Passwords do not match';
+    }
+    if (!agreedToTerms) {
+      return 'Please agree to the Terms of Service and Privacy Policy';
+    }
+    return null;
+  };
+
+  const handleSignUp = async () => {
+    const validationError = validateForm();
+    if (validationError) {
+      Alert.alert('Validation Error', validationError);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.name.trim(),
+          },
+        },
+      });
+
+      if (error) {
+        Alert.alert('Sign Up Failed', error.message);
+        return;
+      }
+
+      if (data.user) {
+        // Check if email confirmation is required
+        if (!data.session) {
+          Alert.alert(
+            'Check Your Email',
+            'We sent you a confirmation link. Please check your email and click the link to activate your account.',
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  router.push('../index')
+                },
+              },
+            ]
+          );
+        }
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An unexpected error occurred');
+      console.error('Sign up error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignUp = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: 'your-app://auth/callback', // Update with your app's deep link
+        },
+      });
+
+      if (error) {
+        Alert.alert('Error', error.message);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to sign up with Google');
+      console.error('Google sign up error:', error);
+    }
+  };
+
+  const handleAppleSignUp = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: 'your-app://auth/callback', // Update with your app's deep link
+        },
+      });
+
+      if (error) {
+        Alert.alert('Error', error.message);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to sign up with Apple');
+      console.error('Apple sign up error:', error);
+    }
   };
 
   return (
@@ -56,14 +165,22 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignIn }) => {
 
             {/* Social Login Buttons */}
             <View style={styles.socialContainer}>
-              <TouchableOpacity style={styles.socialButton}>
+              <TouchableOpacity 
+                style={styles.socialButton}
+                onPress={handleGoogleSignUp}
+                disabled={loading}
+              >
                 <View style={styles.socialContent}>
                   <Ionicons name="logo-google" size={20} color="#4285F4" />
                   <Text style={styles.socialButtonText}>Continue with Google</Text>
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.socialButton, styles.appleButton]}>
+              <TouchableOpacity 
+                style={[styles.socialButton, styles.appleButton]}
+                onPress={handleAppleSignUp}
+                disabled={loading}
+              >
                 <View style={styles.socialContent}>
                   <Ionicons name="logo-apple" size={20} color="white" />
                   <Text style={[styles.socialButtonText, styles.appleButtonText]}>
@@ -91,6 +208,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignIn }) => {
                   onChangeText={(value) => handleInputChange('name', value)}
                   placeholder="Enter your full name"
                   placeholderTextColor="#9CA3AF"
+                  editable={!loading}
                 />
               </View>
 
@@ -105,6 +223,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignIn }) => {
                   placeholderTextColor="#9CA3AF"
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  editable={!loading}
                 />
               </View>
 
@@ -116,13 +235,15 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignIn }) => {
                     style={styles.passwordInput}
                     value={formData.password}
                     onChangeText={(value) => handleInputChange('password', value)}
-                    placeholder="Create a strong password"
+                    placeholder="Create a strong password (min. 6 characters)"
                     placeholderTextColor="#9CA3AF"
                     secureTextEntry={!showPassword}
+                    editable={!loading}
                   />
                   <TouchableOpacity
                     style={styles.eyeButton}
                     onPress={() => setShowPassword(!showPassword)}
+                    disabled={loading}
                   >
                     <Ionicons
                       name={showPassword ? 'eye-off' : 'eye'}
@@ -144,10 +265,12 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignIn }) => {
                     placeholder="Confirm your password"
                     placeholderTextColor="#9CA3AF"
                     secureTextEntry={!showConfirmPassword}
+                    editable={!loading}
                   />
                   <TouchableOpacity
                     style={styles.eyeButton}
                     onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                    disabled={loading}
                   >
                     <Ionicons
                       name={showConfirmPassword ? 'eye-off' : 'eye'}
@@ -162,6 +285,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignIn }) => {
               <TouchableOpacity 
                 style={styles.checkboxContainer}
                 onPress={() => setAgreedToTerms(!agreedToTerms)}
+                disabled={loading}
               >
                 <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
                   {agreedToTerms && (
@@ -178,11 +302,19 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignIn }) => {
 
               {/* Create Account Button */}
               <LinearGradient
-                colors={['#F97316', '#EF4444']}
+                colors={loading ? ['#D1D5DB', '#D1D5DB'] : ['#F97316', '#EF4444']}
                 style={styles.createButton}
               >
-                <TouchableOpacity style={styles.createButtonTouch}>
-                  <Text style={styles.createButtonText}>Create Account</Text>
+                <TouchableOpacity 
+                  style={styles.createButtonTouch}
+                  onPress={handleSignUp}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Text style={styles.createButtonText}>Create Account</Text>
+                  )}
                 </TouchableOpacity>
               </LinearGradient>
             </View>
@@ -191,7 +323,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignIn }) => {
             <View style={styles.signInContainer}>
               <Text style={styles.signInText}>
                 Already have an account?{' '}
-                <TouchableOpacity onPress={onSignIn}>
+                <TouchableOpacity onPress={loading ? undefined : onSignIn}>
                   <Text style={styles.signInLink}>Sign in</Text>
                 </TouchableOpacity>
               </Text>
@@ -287,10 +419,10 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   form: {
-    gap: 16,
+    // gap: 16, // Removed gap for iOS compatibility
   },
   inputContainer: {
-    gap: 8,
+    marginBottom: 16, // Use marginBottom instead of gap
   },
   label: {
     fontSize: 14,
@@ -305,6 +437,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
     backgroundColor: 'white',
+    height: 44,
+    marginTop: 8, // Add space between label and input
   },
   passwordContainer: {
     flexDirection: 'row',
@@ -313,6 +447,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
     borderRadius: 8,
     backgroundColor: 'white',
+    height: 44,
+    marginTop: 8, // Add space between label and input
   },
   passwordInput: {
     flex: 1,
@@ -374,7 +510,7 @@ const styles = StyleSheet.create({
   },
   signInLink: {
     color: '#F97316',
-    fontWeight: '500',
+    fontSize: 14,
   },
 });
 
