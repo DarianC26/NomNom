@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
   
 const Index: React.FC = () => {
   return (
@@ -8,7 +8,7 @@ const Index: React.FC = () => {
       <View style={styles.content}>
         <View style={styles.header}>
           <View style={styles.iconContainer}>
-            <Text style={styles.iconText}>👨‍🍳</Text>
+            <Image source={require("../assets/images/nomnom.png")} style={styles.iconText}/>
           </View>
           <Text style={styles.title}>NomNom</Text>
           <Text style={styles.subtitle}>Your hands-free AI cooking companion</Text>
@@ -79,7 +79,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   iconText: {
-    fontSize: 32,
+    width: 64,
+    height: 64
   },
   title: {
     fontSize: 32,
