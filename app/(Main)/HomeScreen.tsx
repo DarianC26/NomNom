@@ -11,6 +11,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import RecipeCard from '@/components/RecipeCard';
+import { styles } from '@/assets/styles/styles';
+import PopularRecipeCard from '@/components/PopularRecipeCard';
 
 const DUMMY_RECIPES = [
   {
@@ -26,7 +29,7 @@ const DUMMY_RECIPES = [
     id: '2',
     title: 'Mediterranean Pasta Bowl',
     description: 'Fresh pasta tossed with sun-dried tomatoes, olives, and feta cheese in a light herb dressing.',
-    image: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=400&h=300&fit=crop',
+    image: 'https://images.unsplash.com/photo-1518013431117-eb1465fa5752?w=400&h=300&fit=crop',
     time: '25 minutes',
     rating: 4,
     reviews: 12,
@@ -96,67 +99,6 @@ const POPULAR_RECIPES = [
   },
 ];
 
-const StarRating = ({ rating, size = 16 }) => {
-  return (
-    <View style={styles.ratingContainer}>
-      {[1, 2, 3, 4, 5].map((star) => (
-        <Ionicons
-          key={star}
-          name={star <= rating ? 'star' : 'star-outline'}
-          size={size}
-          color="#FFD700"
-        />
-      ))}
-    </View>
-  );
-};
-
-const RecipeCard = ({ recipe, isGrid = false }) => {
-  if (isGrid) {
-    return (
-      <TouchableOpacity style={styles.gridCard}>
-        <Image source={{ uri: recipe.image }} style={styles.gridImage} />
-        <View style={styles.gridContent}>
-          <Text style={styles.gridTitle} numberOfLines={2}>
-            {recipe.title}
-          </Text>
-          <View style={styles.gridMeta}>
-            <StarRating rating={recipe.rating} size={14} />
-            <Text style={styles.gridTime}>{recipe.time}</Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-
-  return (
-    <TouchableOpacity style={styles.recipeCard}>
-      <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-      <View style={styles.recipeContent}>
-        <Text style={styles.recipeTitle}>{recipe.title}</Text>
-        <Text style={styles.recipeDescription}>{recipe.description}</Text>
-        <View style={styles.recipeMeta}>
-          <View style={styles.ratingRow}>
-            <StarRating rating={recipe.rating} />
-            <Text style={styles.reviews}>{recipe.reviews}</Text>
-          </View>
-          <Text style={styles.time}>{recipe.time}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-};
-
-const PopularRecipeCard = ({ recipe }) => (
-  <TouchableOpacity style={styles.popularCard}>
-    <Image source={{ uri: recipe.image }} style={styles.popularImage} />
-    <Text style={styles.popularTitle} numberOfLines={2}>
-      {recipe.title}
-    </Text>
-    <Text style={styles.popularTime}>{recipe.time}</Text>
-  </TouchableOpacity>
-);
-
 export default function HomeScreen() {
   const featuredRecipe = DUMMY_RECIPES[0];
   const gridRecipes = DUMMY_RECIPES.slice(1);
@@ -168,13 +110,13 @@ export default function HomeScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#000" />
+    <SafeAreaView style={localStyles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="white" />
       
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Text style={styles.logo}>🍳 Cooking</Text>
+      <View style={localStyles.header}>
+        <View style={localStyles.headerContent}>
+          <Text style={localStyles.logo}>🍳 COOKING</Text>
           <TouchableOpacity>
             <Ionicons name="settings-outline" size={24} color="#fff" />
           </TouchableOpacity>
@@ -224,13 +166,13 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const localStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: 'white',
   },
   header: {
-    backgroundColor: '#000',
+    backgroundColor: 'white',
     paddingHorizontal: 20,
     paddingBottom: 15,
   },
@@ -243,7 +185,8 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    letterSpacing: 1,
+    color: '#E53E3E',
   },
   subscribeBar: {
     flexDirection: 'row',
@@ -280,107 +223,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 1,
     marginBottom: 15,
-  },
-  recipeCard: {
-    backgroundColor: '#1a1a1a',
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  recipeImage: {
-    width: '100%',
-    height: 200,
-  },
-  recipeContent: {
-    padding: 20,
-  },
-  recipeTitle: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  recipeDescription: {
-    color: '#ccc',
-    fontSize: 16,
-    lineHeight: 22,
-    marginBottom: 15,
-  },
-  recipeMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  reviews: {
-    color: '#ccc',
-    marginLeft: 8,
-    fontSize: 16,
-  },
-  time: {
-    color: '#ccc',
-    fontSize: 16,
-  },
-  horizontalList: {
-    paddingRight: 20,
-  },
-  popularCard: {
-    marginRight: 15,
-    width: 180,
-  },
-  popularImage: {
-    width: 180,
-    height: 120,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  popularTitle: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  popularTime: {
-    color: '#ccc',
-    fontSize: 14,
-  },
-  gridContainer: {
-    justifyContent: 'space-between',
-  },
-  gridItemContainer: {
-    width: '48%',
-    marginBottom: 20,
-  },
-  gridCard: {
-    backgroundColor: '#1a1a1a',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  gridImage: {
-    width: '100%',
-    height: 120,
-  },
-  gridContent: {
-    padding: 12,
-  },
-  gridTitle: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  gridMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  gridTime: {
-    color: '#ccc',
-    fontSize: 12,
-  },
+  }
 });
