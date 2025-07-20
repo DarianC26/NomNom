@@ -12,6 +12,13 @@ const AuthLayout: React.FC = () => {
                 name="SignUpScreen"
                 options={{ headerShown: false }}
             />
+            <Stack.Screen
+                name="EmailVerificationScreen"
+                options={{
+                    headerShown: false,
+                    gestureEnabled: true
+                 }}
+            />
         </Stack>
     );
 };

@@ -87,18 +87,11 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignIn, onSignUpSuccess }
       if (data.user) {
         // Check if email confirmation is required
         if (!data.session) {
-          Alert.alert(
-            'Check Your Email',
-            'We sent you a confirmation link. Please check your email and click the link to activate your account.',
-            [
-              {
-                text: 'OK',
-                onPress: () => {
-                  router.push('/SignInScreen')
-                },
-              },
-            ]
-          );
+          // Navigate to email verification screen
+          router.push({
+            pathname: '/EmailVerificationScreen',
+            params: { email: formData.email.trim().toLowerCase() }
+          });
         } else {
           // User is signed up and logged in
           console.log('Sign up successful:', data.user);

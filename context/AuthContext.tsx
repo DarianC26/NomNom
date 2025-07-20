@@ -28,6 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const handleAppStateChange = (state: string) => {
+        console.log("something is happening: " + state)
       if (state === 'active') {
         supabase.auth.startAutoRefresh();
       } else {
@@ -37,6 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const subscription = AppState.addEventListener('change', handleAppStateChange);
     return () => {
+        console.log("subscription removed")
       subscription?.remove();
     };
   }, []);
@@ -44,16 +46,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-      console.log(session)
+        console.log("Initial Session: " + session)
+        setSession(session);
+        setLoading(false);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setLoading(false);
-      console.log(session)
+        console.log("Auth Event: " + session)
+        setSession(session);
+        setLoading(false);
     });
     return () => subscription.unsubscribe();
   }, []);
