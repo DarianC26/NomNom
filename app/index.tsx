@@ -9,7 +9,7 @@ const Index: React.FC = () => {
   useEffect(() => {
     if (!loading) {
       if (session) {
-        router.replace('/(Profile)/Profile'); // 👈 automatically go to Profile layout
+        router.replace('/(Main)/HomeScreen'); // 👈 automatically go to Profile layout
       }
     }
   }, [loading, session]);
@@ -52,7 +52,7 @@ const Index: React.FC = () => {
         </View>
 
         <View style={styles.buttons}>
-          <TouchableOpacity style={styles.primaryButton} onPress={()=>{router.push("/SignUpScreen")}}>
+          <TouchableOpacity style={styles.primaryButton} onPress={()=>{router.push('/(Main)/HomeScreen')}}>
             <Text style={styles.primaryButtonText}>Get Started Free</Text>
           </TouchableOpacity>
           

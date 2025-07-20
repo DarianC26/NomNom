@@ -26,6 +26,13 @@ export default function RootLayout() {
             gestureEnabled: false
           }}
         />
+        <Stack.Screen
+          name="(Main)"
+          options={{
+            headerShown: false,
+            gestureEnabled: false
+          }}
+        />
       </Stack>
     </AuthProvider>
   );
