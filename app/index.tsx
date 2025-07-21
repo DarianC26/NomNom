@@ -56,7 +56,7 @@ const Index: React.FC = () => {
             <Text style={styles.primaryButtonText}>Get Started Free</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.secondaryButton} onPress={()=>{router.push("/SignInScreen")}}>
+          <TouchableOpacity style={styles.secondaryButton} onPress={()=>{router.push("/audio")}}>
             <Text style={styles.secondaryButtonText}>I Already Have an Account</Text>
           </TouchableOpacity>
         </View>

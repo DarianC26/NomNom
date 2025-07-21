@@ -1,7 +1,24 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { Platform, Alert } from 'react-native';
+import { useEffect } from 'react';
 
 export default function MainLayout() {
+
+  useEffect(() => {
+  const requestMicrophonePermission = async () => {
+    if (Platform.OS === 'ios') {
+      const result = await request(PERMISSIONS.IOS.MICROPHONE);
+      if (result !== RESULTS.GRANTED) {
+        Alert.alert('Microphone Required', 'Please enable microphone access to use voice features.');
+      }
+    }
+  };
+
+  requestMicrophonePermission();
+}, []);
+
   return (
     <Tabs
       screenOptions={{

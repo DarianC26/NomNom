@@ -1,16 +1,10 @@
 import { styles } from '@/assets/styles/styles';
+import { Recipe } from '@/assets/types/Recipe';
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 
-interface PopularRecipe {
-  id: string;
-  title: string;
-  image: string;
-  time: string;
-}
-
 interface PopularRecipeCardProps {
-  recipe: PopularRecipe;
+  recipe: Recipe;
 }
 
 const PopularRecipeCard: React.FC<PopularRecipeCardProps> = ({ recipe }) => (

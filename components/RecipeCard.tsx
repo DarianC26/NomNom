@@ -2,16 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { styles } from '@/assets/styles/styles';
 import StarRating from './StarRating';
-
-export interface Recipe {
-  id: string;
-  title: string;
-  description?: string;
-  image: string;
-  time: string;
-  rating: number;
-  reviews?: number;
-}
+import { Recipe } from '@/assets/types/Recipe';
 
 interface RecipeCardProps {
   recipe: Recipe;

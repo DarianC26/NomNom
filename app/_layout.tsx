@@ -13,6 +13,13 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen
+          name="audio"
+          options={{
+            headerShown: false,
+            gestureEnabled: false
+          }}
+        />
+        <Stack.Screen
           name="(Auth)"
           options={{
             headerShown: false,
